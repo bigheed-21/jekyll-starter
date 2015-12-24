@@ -3,6 +3,8 @@ var browserSync = require('browser-sync');
 var sass        = require('gulp-sass');
 var prefix      = require('gulp-autoprefixer');
 var cp          = require('child_process');
+var svgSymbols  = require('gulp-svg-symbols');
+
 
 var messages = {
     jekyllBuild: '<span style="color: grey">Running:</span> $ jekyll build'
@@ -51,12 +53,34 @@ gulp.task('sass', function () {
 });
 
 /**
+ Create an svg sprite system for iconography
+*/
+
+gulp.task('svgSymbols', function(){
+	return gulp.src('assets/svg/*.svg')
+	.pipe(svgSymbols({
+		css: false,
+        templates: ['default-svg'],
+		accessibility: function () {
+			return {
+				title: false
+			}
+		},
+		className: '.icon-%f'
+	}))
+	.pipe(gulp.dest('_includes'));
+});
+
+
+
+/**
  * Watch scss files for changes & recompile
  * Watch html/md files, run jekyll & reload BrowserSync
  */
 gulp.task('watch', function () {
     gulp.watch('_scss/*.scss', ['sass']);
-    gulp.watch(['*.html', '_layouts/*.html', '_posts/*'], ['jekyll-rebuild']);
+    gulp.watch(['*.html', '_layouts/*.html', '_posts/*', '*.yml', '_includes/*.html'], ['jekyll-rebuild']);
+    gulp.watch('assets/svg/*.svg', ['svgSymbols']);
 });
 
 /**
